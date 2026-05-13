@@ -1,7 +1,7 @@
 /**
  * useOdoKey.ts — هوك الاتصال بسيرفر OdoKey
  * يشفر بيانات OBD بـ AES-256 ويرفعها كـ JSON
- * السيرفر: http://192.168.8.151:3001
+ * السيرفر: http://https://odokey-server-production.up.railway.app
  *
  * ملاحظة: نستخدم expo-crypto لتوليد IV عشوائي آمن
  * بدلاً من CryptoJS.lib.WordArray.random() التي تفشل في Hermes/Native
@@ -12,7 +12,7 @@ import CryptoJS from 'crypto-js';
 import * as ExpoCrypto from 'expo-crypto';
 
 // ─── إعدادات السيرفر ─────────────────────────────────────────────────────────
-const ODOKEY_BASE_URL = 'http://192.168.8.151:3001';
+const ODOKEY_BASE_URL = 'http://https://odokey-server-production.up.railway.app';
 const UPLOAD_URL = `${ODOKEY_BASE_URL}/api/files/upload`;
 
 // مفتاح AES-256 ثابت (32 بايت = 256 بت)
