@@ -1,0 +1,9 @@
+{
+  "expo": {
+    "name": "OdoSeal-Final",
+    "slug": "odoseal-final",
+    "android": {
+      "package": "com.odoseal.app"
+    }
+  }
+}
