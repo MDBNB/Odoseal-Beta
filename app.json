@@ -2,8 +2,18 @@
   "expo": {
     "name": "OdoSeal-Final",
     "slug": "odoseal-final",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
     "android": {
-      "package": "com.odoseal.app"
-    }
+      "package": "com.odoseal.final",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
+    },
+    "plugins": []
   }
 }
+
