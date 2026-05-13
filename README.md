@@ -1,183 +1,235 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/Status-Beta%20%F0%9F%9F%A2%20Tested%20%26%20Working-1D9E75?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Blockchain-Solana-9945FF?style=for-the-badge&logo=solana&logoColor=white" />
-<img src="https://img.shields.io/badge/Vehicle-OBD--II-FF6B35?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" />
-<img src="https://img.shields.io/badge/Company-Odocar%20LLC-0A0A0A?style=for-the-badge" />
+# 🔐 OdoSeal Beta
 
-# OdoSeal Beta
+### *Decentralized Vehicle Data Integrity — Proof of Concept*
 
-### Decentralized Vehicle Data Verification Protocol
-**Built on Solana ?? Powered by Odomia Ecosystem ?? By Odocar LLC**
+[![Odo Protocol](https://img.shields.io/badge/Odo_Protocol-DePIN-blueviolet?style=for-the-badge)](https://github.com/MDBNB/Odoseal-Beta)
+[![React Native](https://img.shields.io/badge/React_Native-Expo_Native-61DAFB?style=for-the-badge&logo=react)](https://expo.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
+[![IPFS](https://img.shields.io/badge/Storage-IPFS_via_Pinata-65C2CB?style=for-the-badge)](https://pinata.cloud)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-[Watch Demo](#demo) ?? [How It Works](#how-it-works) ?? [Architecture](#architecture) ?? [Ecosystem](#ecosystem)
+> **OdoSeal Beta** is the functional Proof-of-Concept for the **Odo Protocol** — a DePIN (Decentralized Physical Infrastructure Network) layer designed to bring cryptographic trust to automotive data on Solana.
 
 </div>
 
 ---
 
-## The Problem
+## 🌐 The Problem: A $6B Industry Built on Unverifiable Data
 
-Odometer fraud costs used car buyers **billions of dollars annually**. Rolled-back odometers, falsified service records, and unverifiable vehicle histories leave buyers with no reliable way to know a vehicle's true condition.
+The global used-car market processes over **40 million transactions annually**, yet the foundational data layer — odometer readings, trip logs, and maintenance records — remains trivially falsifiable. A single OBD-II port manipulation can erase 100,000 km of vehicle history in seconds, costing buyers billions and destroying market trust.
 
-> There is no trusted, open, tamper-proof standard for verifying a vehicle's real history ??? until now.
+**OdoSeal solves this at the hardware-software boundary.**
 
 ---
 
-## The Solution
+## 🧬 Value Proposition: The Odo Protocol's Trust Anchor
 
-OdoSeal connects directly to a vehicle's onboard diagnostics and anchors that data **permanently on the Solana blockchain** ??? creating a verifiable, immutable vehicle history that no one can edit.
+OdoSeal Beta demonstrates the **client-side cryptographic pipeline** that forms the foundation of the Odo Protocol:
 
-| | Traditional Systems | OdoSeal |
+```
+Physical Vehicle Data (OBD-II)
+        │
+        ▼
+┌─────────────────────────────────┐
+│  Mobile Device (Native Android) │
+│  ┌───────────────────────────┐  │
+│  │  expo-crypto SecureRandom │  │  ← Hardware Entropy (Android SecureRandom)
+│  │  AES-256-CBC Encryption   │  │  ← Client-Side, Zero-Knowledge to Server
+│  │  IV + Ciphertext Bundle   │  │
+│  └───────────────────────────┘  │
+└─────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────┐
+│  OdoKey Vault (Node.js + SQLite)│
+│  ┌───────────────────────────┐  │
+│  │  IPFS Upload via Pinata   │  │  ← Content-Addressed Storage
+│  │  CID Indexing in SQLite   │  │  ← Immutable Cryptographic Fingerprint
+│  └───────────────────────────┘  │
+└─────────────────────────────────┘
+        │
+        ▼
+   IPFS / Solana (Next Phase)      ← On-Chain Attestation Layer
+```
+
+The CID returned by IPFS is a **SHA-256 cryptographic fingerprint** of the encrypted payload — making any post-hoc data manipulation mathematically detectable.
+
+---
+
+## ⚙️ Key Technical Pillars
+
+### 1. 🎲 Native Hardware Entropy
+```typescript
+// expo-crypto bridges to Android's java.security.SecureRandom
+// — NOT Math.random(), NOT window.crypto (unavailable in Hermes)
+const randomBytes = await ExpoCrypto.getRandomBytesAsync(16);
+```
+Every encryption operation generates a **cryptographically secure, hardware-backed IV** via Android's `SecureRandom` PRNG. This eliminates the predictable IV vulnerability present in browser-based crypto implementations.
+
+### 2. 🔒 AES-256 Client-Side Encryption
+```typescript
+const encrypted = CryptoJS.AES.encrypt(plaintext, key, {
+  iv,
+  mode: CryptoJS.mode.CBC,
+  padding: CryptoJS.pad.Pkcs7,
+});
+```
+Data is encrypted **on the mobile device before transmission**. The OdoKey server receives only ciphertext — it has zero knowledge of the plaintext OBD payload. This is a prerequisite for trustless DePIN architecture.
+
+### 3. 🧮 Cryptographic Fingerprinting via IPFS CIDs
+```
+CID: QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco
+```
+Every sealed data packet is pinned to IPFS via Pinata. The resulting **Content Identifier (CID)** is a deterministic hash of the content — any modification to the encrypted payload produces a completely different CID, providing **tamper-evidence without a trusted third party**.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology | Purpose |
 |---|---|---|
-| **Data Storage** | Centralized database | Solana blockchain |
-| **Tampering** | Possible | Cryptographically impossible |
-| **Access** | Restricted | Public & permissionless |
-| **Trust** | Requires authority | Requires no one |
-| **Cost** | High | Near-zero (Solana fees) |
+| **Mobile Client** | React Native + Expo (Native Build) | Native Android APK — no Expo Go dependency |
+| **Language** | TypeScript 5.x | Type-safe cryptographic operations |
+| **Encryption** | CryptoJS 4.x + expo-crypto | AES-256-CBC with hardware-backed IV |
+| **Backend** | Node.js + Express | OdoKey Vault API |
+| **Database** | SQLite (better-sqlite3) | CID indexing and file metadata |
+| **Decentralized Storage** | IPFS via Pinata | Immutable content-addressed storage |
+| **Build System** | Gradle + React Native CLI | Native Android compilation |
+| **Package ID** | `com.odoseal.app` | Production Android package identifier |
 
 ---
 
-## Demo
+## 🏆 MVP Accomplishments
 
-> **[Watch the full demo video](https://your-demo-link-here.com)**
-
-The demo shows the complete flow:
-- Pairing with a vehicle via Bluetooth OBD-II
-- Reading live data from the vehicle's ECU
-- Writing a signed, tamper-proof record to Solana
-- Viewing the on-chain record in real time
-
----
-
-## How It Works
-
-```
-+---------------------+
-|   Vehicle ECU       |
-|   (OBD-II Port)     |
-+----------+----------+
-           |
-           | Bluetooth
-           v
-+---------------------+
-|  OdoSeal Android    |
-|       App           |
-|  - Read odometer    |
-|  - Read diagnostics |
-|  - Sign data        |
-+----------+----------+
-           |
-           | HTTPS
-           v
-+---------------------+
-|  Odomia Backend     |
-|  - Validate data    |
-|  - Build tx         |
-|  - Submit to chain  |
-+----------+----------+
-           |
-           | RPC
-           v
-+---------------------+
-|  Solana Blockchain  |
-|  - Immutable record |
-|  - Public access    |
-|  - Tamper-proof     |
-+---------------------+
-```
-
-1. **Connect** ??? OdoSeal pairs with the vehicle via standard Bluetooth OBD-II adapter
-2. **Read** ??? Real-time vehicle data is read directly from the ECU (odometer, DTCs, VIN)
-3. **Sign** ??? Data is cryptographically signed before submission
-4. **Record** ??? A tamper-proof record is written to the Solana blockchain permanently
-5. **Verify** ??? Anyone can verify a vehicle's history by querying the chain
-
----
-
-## Architecture
-
-```
-Odomia Ecosystem
-+-- OdoSeal (this repo)     -- OBD-II to Blockchain bridge
-+-- Odocar App              -- Consumer vehicle management
-+-- Odokey                  -- Decentralized storage (IPFS + AES-256)
-+-- Odos AI                 -- AI agent layer (odomia.io)
-+-- Odomia Identity         -- Biometric + Solana DID
-```
-
----
-
-## Technology Stack
-
-| Layer | Technology |
+| Milestone | Status |
 |---|---|
-| Vehicle Interface | OBD-II via Bluetooth (ELM327 compatible) |
-| Mobile App | Android (Kotlin) |
-| Blockchain | Solana (Mainnet) |
-| Backend | Odomia Backend System |
-| Storage | Odokey ??? IPFS + AES-256 encryption |
-| Identity | Odomia DID ??? Solana-based |
+| ✅ Native Android APK compiled via Gradle (no Expo Go) | **COMPLETE** |
+| ✅ Hardware-entropy IV generation via `expo-crypto` | **COMPLETE** |
+| ✅ AES-256-CBC client-side encryption pipeline | **COMPLETE** |
+| ✅ Secure API tunneling via `adb reverse` (Metro + OdoKey) | **COMPLETE** |
+| ✅ IPFS upload and CID retrieval via Pinata | **COMPLETE** |
+| ✅ SQLite data indexing with timestamp and size metadata | **COMPLETE** |
+| ✅ `view-data.js` — CLI vault inspector for backend verification | **COMPLETE** |
 
 ---
 
-## Current Status
+## 🚀 Deployment Guide
 
-| Feature | Status |
-|---|---|
-| OBD-II Bluetooth connection | Working |
-| Real-time ECU data reading | Working |
-| Cryptographic data signing | Working |
-| Solana on-chain record write | Working |
-| Beta testing on Android | Complete |
-| iOS support | Planned |
-| Odos AI integration | In progress |
-| Public verifier portal | In progress |
+### Prerequisites
+- Node.js 18+
+- Android Studio + Android SDK (API 33+)
+- Android device with **USB Debugging enabled**
+- ADB installed and in PATH
 
----
+### 1. Clone & Install
 
-## Ecosystem
-
-OdoSeal is one component of the **Odomia Ecosystem** ??? a sovereign DePIN AI infrastructure for the automotive industry.
-
-```
-odomia.io
-+-- odocar.io       Vehicle data + OBD-II app
-+-- odoseal         On-chain vehicle verification  <- YOU ARE HERE
-+-- odokey          Decentralized encrypted storage
-+-- odos AI         AI agent platform
-+-- odomia          Biometric identity layer
+```bash
+git clone https://github.com/MDBNB/Odoseal-Beta.git
+cd Odoseal-Beta
+npm install --legacy-peer-deps
 ```
 
+### 2. Start the OdoKey Backend
+
+```bash
+cd odokey-server
+npm install
+node server.js
+# Server runs on http://localhost:3001
+```
+
+### 3. Bridge ADB Ports (Critical Step)
+
+Connect your Android device via USB, then run:
+
+```bash
+# Bridge Metro bundler port
+adb reverse tcp:8081 tcp:8081
+
+# Bridge OdoKey server port
+adb reverse tcp:3001 tcp:3001
+```
+
+> This routes the device's network requests through the USB cable to your development machine — no Wi-Fi configuration required.
+
+### 4. Build & Deploy to Device
+
+```bash
+cd Odoseal-Beta
+npx expo run:android
+```
+
+> **Note:** After any `npx expo prebuild --clean`, restore the splash screen color:
+> ```powershell
+> Set-Content "android\app\src\main\res\values\colors.xml" `
+>   "<resources>`n  <color name=`"colorPrimary`">#6200EE</color>`n  <color name=`"colorPrimaryDark`">#3700B3</color>`n  <color name=`"splashscreen_background`">#1a1a2e</color>`n</resources>"
+> ```
+
+### 5. Verify Data in Vault
+
+```bash
+cd odokey-server
+node view-data.js
+```
+
 ---
 
-## Grants & Recognition
+## 📁 Repository Structure
 
-- Applied ??? **Solana Foundation** Grant
-- Applied ??? **Avalanche** Foundation Grant
-- Applied ??? **DD.xyz** Ecosystem Grant
+```
+Odoseal-Beta/
+├── app/                    # Expo Router screens
+│   └── (tabs)/
+│       ├── index.tsx       # Main OBD data sealing interface
+│       └── explore.tsx     # Vault explorer
+├── hooks/
+│   └── useOdoKey.ts        # Core cryptographic pipeline hook
+├── android/                # Native Android project (Gradle)
+│   └── app/src/main/
+│       ├── AndroidManifest.xml
+│       └── res/values/
+│           └── colors.xml  # Includes splashscreen_background
+├── odokey-server/          # OdoKey Vault backend
+│   ├── server.js           # Express API
+│   ├── db.js               # SQLite interface
+│   ├── routes/files.js     # Upload/download endpoints
+│   └── view-data.js        # CLI vault inspector
+└── app.json                # Expo config (package: com.odoseal.app)
+```
 
 ---
 
-## Company
+## 🔭 Roadmap: From PoC to Solana DePIN
 
-**Odocar LLC**
-Wyoming, United States ?? EIN Registered
-
-Building trust infrastructure for the automotive industry through decentralized technology.
-
-[odocar.io](https://odocar.io) ?? [odomia.io](https://odomia.io)
+```
+Phase 1 (Current) ──► Phase 2 ──────────────────► Phase 3
+OdoSeal Beta MVP       Solana Attestation Layer     Full DePIN Network
+─────────────────      ─────────────────────────    ──────────────────
+✅ AES-256 Encryption  ◻ On-chain CID anchoring     ◻ Hardware OBD dongle
+✅ IPFS Storage        ◻ Solana Program (Anchor)    ◻ ZK-proof mileage
+✅ Native Android      ◻ Token-gated data access    ◻ Insurance integrations
+✅ CID Fingerprinting  ◻ Validator node network     ◻ Marketplace launch
+```
 
 ---
 
-## License
+## 🤝 Built for the Odo Protocol Ecosystem
 
-?? 2026 Odocar LLC. All rights reserved.
+OdoSeal Beta is the **mobile data ingestion layer** of the broader Odo Protocol stack, which includes:
+
+- **OdoCar** — Vehicle telemetry aggregation
+- **OdoKey** — Decentralized data vault
+- **Odomia Bridge** — Cross-chain data relay
+- **OdoSeal** *(this repo)* — Client-side cryptographic sealing
 
 ---
 
 <div align="center">
-<i>OdoSeal ??? Because every mile should be verifiable.</i>
-</div>
 
+**Built with cryptographic rigor for the DePIN generation.**
+
+*Odo Protocol — Trustless Automotive Data Infrastructure*
+
+</div>
