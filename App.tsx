@@ -167,7 +167,7 @@ export default function App() {
 
         {/* ─── معلومات السيرفر ───────────────────────────────────────────── */}
         <Text style={styles.serverInfo}>
-          🌐 OdoKey: 192.168.8.151:3001
+          🌐 OdoKey: https://odokey-server-production.up.railway.app
         </Text>
       </View>
     </SafeAreaView>
